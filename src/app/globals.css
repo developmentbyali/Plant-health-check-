@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0b1220;
+  --foreground: #e6f0ff;
+  --glass-bg: 18, 24, 40; /* rgb for blur overlay */
 }
 
 @theme inline {
@@ -12,15 +13,59 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background: radial-gradient(1200px 800px at 10% -10%, #233a66 0%, transparent 50%),
+    radial-gradient(1000px 600px at 110% 10%, #1a7f72 0%, transparent 50%),
+    linear-gradient(180deg, #0b1220 0%, #0d0f1a 100%);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji",
+    "Segoe UI Emoji";
+  min-height: 100vh;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Glassmorphism utilities */
+@layer utilities {
+  .glass-card {
+    background: linear-gradient(
+        180deg,
+        rgba(var(--glass-bg), 0.28),
+        rgba(var(--glass-bg), 0.22)
+      ),
+      radial-gradient(120% 120% at 0% 0%, rgba(255, 255, 255, 0.06), transparent);
+    backdrop-filter: blur(14px) saturate(120%);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+  }
+  .glass-border {
+    border: 1px solid rgba(255, 255, 255, 0.16);
+  }
+  .glass-hover {
+    transition: transform 180ms ease, box-shadow 220ms ease, background 220ms ease;
+  }
+  .glass-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  }
+  .soft-gradient {
+    background: radial-gradient(180px 140px at 80% 0%, rgba(255, 255, 255, 0.08), transparent 60%),
+      radial-gradient(220px 160px at 0% 100%, rgba(26, 127, 114, 0.15), transparent 60%);
+  }
+  .metric-label { @apply text-sm text-zinc-300; }
+  .metric-value { @apply text-3xl font-semibold text-white; }
+}
+
+.link {
+  @apply text-zinc-200/90 hover:text-white transition-colors;
+}
+
+.fade-in {
+  animation: fadein 400ms ease both;
+}
+
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
