@@ -1,21 +1,17 @@
 import { SensorReading } from "@/lib/models/SensorReading";
 
 class SensorService {
-  async getLatest(): Promise<SensorReading> {
+  async getLatest(): Promise<any> {
     const isServer = typeof window === "undefined";
-    // Use mock data during build/export (no API available)
-    if (isServer && (process.env.NEXT_PHASE === "phase-export" || process.env.NODE_ENV === "production")) {
-      const { mockStream } = await import("@/lib/services/MockDataStream");
-      return mockStream.current();
-    }
-    const base = isServer
-      ? process.env.VERCEL_URL
+    let url = "/api/sensors/latest";
+    if (isServer) {
+      const base = process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000"
-      : "";
-    const res = await fetch(`${base}/api/sensors/latest`, { next: { revalidate: 2 } });
-    const json = await res.json();
-    return new SensorReading(json);
+        : "http://localhost:3000";
+      url = `${base}/api/sensors/latest`;
+    }
+    const res = await fetch(url, { cache: "no-store" });
+    return await res.json();
   }
 
   async getHistory(params?: { from?: number; to?: number }): Promise<SensorReading[]> {

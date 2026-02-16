@@ -4,13 +4,16 @@ import SensorChart from "@/components/SensorChart";
 import { sensorService } from "@/lib/services/SensorService";
 
 export default async function HistoryPage() {
-  const history = await sensorService.getHistory();
+  // Get timestamp for 48 hours ago
+  const now = Date.now();
+  const from = now - 2 * 24 * 60 * 60 * 1000;
+  const history = await sensorService.getHistory({ from });
   const labels = history.map((r) => new Date(r.timestamp).toLocaleTimeString());
   return (
     <div className="min-h-screen bg-transparent">
       <div className="max-w-3xl mx-auto py-6 px-2">
         <Navbar />
-        <h2 className="text-2xl font-bold text-zinc-100 mt-8 mb-4">History</h2>
+        <h2 className="text-2xl font-bold text-zinc-100 mt-8 mb-4">History (Last 2 Days)</h2>
         <GlassCard className="mb-6">
           <SensorChart
             labels={labels}

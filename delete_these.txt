@@ -1,0 +1,2 @@
+src/components/LiveChart.tsx
+src/components/LiveChartClient.tsx

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
-import { mockStream } from "@/lib/services/MockDataStream";
+import { getLatestReading } from "@/lib/memory/SensorMemoryStore";
 
 export async function GET() {
-  return NextResponse.json(mockStream.current());
+  const latest = getLatestReading();
+  const now = Date.now();
+  const connected = latest && latest.timestamp && (now - latest.timestamp < 60000);
+  return NextResponse.json({ ...latest, connected });
 }

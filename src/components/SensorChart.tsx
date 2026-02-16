@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo } from "react";
+import React, { useMemo, useRef, useEffect } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -28,30 +28,43 @@ type Props = {
 };
 
 export default function SensorChart({ labels, series }: Props) {
-  const data = useMemo(
-    () => ({
-      labels,
-      datasets: series.map((s) => ({
-        label: s.label,
-        data: s.data,
-        borderColor: s.color,
-        backgroundColor: (ctx: any) => {
-          const { chart } = ctx;
-          const { ctx: c, chartArea } = chart;
-          if (!chartArea) return s.color + "33";
-          const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-          gradient.addColorStop(0, s.color + "33");
-          gradient.addColorStop(1, s.color + "05");
-          return gradient;
-        },
-        fill: true,
-        tension: 0.35,
-        borderWidth: 2,
-        pointRadius: 0,
-      })),
-    }),
-    [labels, series]
-  );
+  const chartRef = useRef<any>(null);
+
+  // Only update chart data in place for smooth animation
+  useEffect(() => {
+    const chart = chartRef.current?.chartInstance || chartRef.current;
+    if (chart) {
+      chart.data.labels = labels;
+      series.forEach((s, i) => {
+        if (chart.data.datasets[i]) {
+          chart.data.datasets[i].data = s.data;
+        }
+      });
+      chart.update("none");
+    }
+  }, [labels, series]);
+
+  const data = useMemo(() => ({
+    labels,
+    datasets: series.map((s) => ({
+      label: s.label,
+      data: s.data,
+      borderColor: s.color,
+      backgroundColor: (ctx: any) => {
+        const { chart } = ctx;
+        const { ctx: c, chartArea } = chart;
+        if (!chartArea) return s.color + "33";
+        const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+        gradient.addColorStop(0, s.color + "33");
+        gradient.addColorStop(1, s.color + "05");
+        return gradient;
+      },
+      fill: true,
+      tension: 0.35,
+      borderWidth: 2,
+      pointRadius: 0,
+    })),
+  }), [labels, series]);
 
   const options = useMemo(
     () => ({
@@ -82,7 +95,7 @@ export default function SensorChart({ labels, series }: Props) {
 
   return (
     <div className="h-64 w-full">
-      <Line data={data} options={options} />
+      <Line ref={chartRef} data={data} options={options} />
     </div>
   );
 }
